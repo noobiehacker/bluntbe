@@ -1,4 +1,4 @@
-package main
+package bluntbe
 
 import (
     "encoding/json"
@@ -6,10 +6,12 @@ import (
     "net/http"
     "github.com/gorilla/mux"
     //"fmt"
+    "github.com/noobiehacker/bluntbe/internal/repos"
 )
 //USERS
 var users []User
 var swipes []Swipe
+var filters []Filter
 
 type User struct {
   UserName string `json:"username",omitempty"`
@@ -21,7 +23,7 @@ type User struct {
 type Swipe struct {
   swiperID string `json:"swiperid",omitempty`
   swipeeID string `json:"swipeeid",omitempty`
-  yes bool `json:"yes",omitempty`
+  yes string `json:"yes",omitempty`
 }
 
 type Filter struct {
@@ -33,7 +35,7 @@ type Filter struct {
   userID string `json:"userid",omitempty`
 }
 
-func createFilter(w http.ResponseWriter, req *http.Request) {
+func CreateFilter(w http.ResponseWriter, req *http.Request) {
 
   params := mux.Vars(req)
   var filter Filter
@@ -53,8 +55,8 @@ func CreateSwipeEndPoint(w http.ResponseWriter, req *http.Request) {
   params := mux.Vars(req)
   var swipe Swipe
   _ = json.NewDecoder(req.Body).Decode(&swipe)
-  swipe.SwiperID = params["swiperid"]
-  swipe.SwipeeID = params["swipeeid"]
+  swipe.swiperID = params["swiperid"]
+  swipe.swipeeID = params["swipeeid"]
   swipe.yes = params["yes"]
   swipes = append(swipes, swipe)
   json.NewEncoder(w).Encode(swipes)
@@ -97,7 +99,38 @@ func DeleteUserEndpoint(w http.ResponseWriter, req *http.Request) {
   json.NewEncoder(w).Encode(users)
 }
 
+// App defines the application container
+type App struct {
+	repos repos.Client
+}
+
+// GetReposHandler returns a list of (public) repositories for a given GitHub user
+func (a *App) GetReposHandler(w http.ResponseWriter, r *http.Request) {
+	user := r.FormValue("user")
+	if user == "" {
+		http.Error(w, "MISSING_ARG_USER", 400)
+		return
+	}
+
+	repos, err := a.repos.Get(user)
+	if err != nil {
+		http.Error(w, "INTERNAL_ERROR", 500)
+		return
+	}
+
+	b, err := json.Marshal(repos)
+	if err != nil {
+		http.Error(w, "INTERNAL_ERROR", 500)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(b)
+}
+
 func main() {
+
+    app := &App{repos: repos.ReposClient{}}
     router := mux.NewRouter()
     users = append(users, User{ID : "0", UserName : "Giovanni", FirstName : "David", LastName : "Chan" })
     users = append(users, User{ID: "1", UserName: "Soldier", FirstName: "Jon", LastName: "Huang" })
@@ -107,6 +140,7 @@ func main() {
     router.HandleFunc("/user/{id}", GetUserEndpoint).Methods("GET")
     router.HandleFunc("/user/{id}", CreateUserEndpoint).Methods("POST")
     router.HandleFunc("/user/{id}", DeleteUserEndpoint).Methods("DELETE")
+    router.HandleFunc("/repos", app.GetReposHandler)
     log.Fatal(http.ListenAndServe(":12345", router))
-
+    log.Println("listening on 12345")
 }
