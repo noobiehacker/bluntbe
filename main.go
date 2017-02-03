@@ -14,7 +14,7 @@ import (
 
 // App defines the application container
 type App struct {
-	repos repo.Client
+	repo repo.Client
 }
 
 // GetReposHandler returns a list of (public) repositories for a given GitHub user
@@ -25,7 +25,7 @@ func (a *App) GetReposHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repos, err := a.repos.Get(user)
+	repos, err := a.repo.Get(user)
 	if err != nil {
 		http.Error(w, "INTERNAL_ERROR", 500)
 		return
@@ -41,16 +41,16 @@ func (a *App) GetReposHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-var users []User
+var users []user.User
 
 func main() {
 
-    app := &App{repos: repos.ReposClient{}}
+    app := &App{repo: repo.ReposClient{}}
     router := mux.NewRouter()
-    router.HandleFunc("/users", user.GetUsersEndpoint).Methods("GET")
-    router.HandleFunc("/user/{id}", user.GetUserEndpoint).Methods("GET")
-    router.HandleFunc("/user/{id}", user.CreateUserEndpoint).Methods("POST")
-    router.HandleFunc("/user/{id}", user.DeleteUserEndpoint).Methods("DELETE")
+    router.HandleFunc("/users", user.GetUsers).Methods("GET")
+    router.HandleFunc("/user/{id}", user.GetUser).Methods("GET")
+    router.HandleFunc("/user/{id}", user.CreateUser).Methods("POST")
+    router.HandleFunc("/user/{id}", user.DeleteUser).Methods("DELETE")
     router.HandleFunc("/repos", app.GetReposHandler)
     log.Fatal(http.ListenAndServe(":12345", router))
     log.Println("listening on 12345")

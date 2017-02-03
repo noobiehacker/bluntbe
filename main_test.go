@@ -7,7 +7,7 @@ import (
   "net/http/httptest"
   "github.com/stretchr/testify/assert"
   "github.com/noobiehacker/bluntbe/internal/repo"
-  "github.com/noobiehacker/bluntbe/internal/user"
+  //"github.com/noobiehacker/bluntbe/internal/user"
   //"fmt"
 )
 
@@ -20,7 +20,7 @@ type ReposTestClient struct {
 }
 
 func (c ReposTestClient) Get(string) ([]repo.Repo, error) {
-	return c.Repos, c.Err
+	return c.Repo, c.Err
 }
 
 func TestGetReposHandler(t *testing.T) {
@@ -42,7 +42,7 @@ func TestGetReposHandler(t *testing.T) {
 		}, {
 			description: "error getting repos",
 			reposClient: &ReposTestClient{
-				Repos: []repo.Repo{},
+				Repo: []repo.Repo{},
 				Err:   errors.New("fake test error"),
 			},
 			url:                "/user?user=fakeuser",
@@ -51,7 +51,7 @@ func TestGetReposHandler(t *testing.T) {
 		}, {
 			description: "no repos found",
 			reposClient: &ReposTestClient{
-				Repos: []repo.Repo{},
+				Repo: []repo.Repo{},
 				Err:   nil,
 			},
 			url:                "/user?user=fakeuser",
@@ -60,8 +60,8 @@ func TestGetReposHandler(t *testing.T) {
 		}, {
 			description: "succesfull query",
 			reposClient: &ReposTestClient{
-				Repos: []repo.Repo{
-					repos.Repo{Name: "test", Description: "a test"},
+				Repo: []repo.Repo{
+					repo.Repo{Name: "test", Description: "a test"},
 				},
 				Err: nil,
 			},
@@ -73,7 +73,7 @@ func TestGetReposHandler(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		app := &App{repos: tc.reposClient}
+		app := &App{repo: tc.reposClient}
 
 		req, err := http.NewRequest("GET", tc.url, nil)
 		assert.NoError(err)
