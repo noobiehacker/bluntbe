@@ -43,8 +43,15 @@ func (a *App) GetReposHandler(w http.ResponseWriter, r *http.Request) {
 
 var users []user.User
 
-func main() {
+func initializeUser(){
+  users = append(users, user.User{ID : "0", UserName : "Giovanni", FirstName : "David", LastName : "Chan" })
+  users = append(users, user.User{ID: "1", UserName: "Soldier", FirstName: "Jon", LastName: "Huang" })
+  users = append(users, user.User{ID: "2", UserName: "MayLing", FirstName: "Peter", LastName: "Ma" })
+  users = append(users, user.User{ID: "3", UserName: "TightMan", FirstName: "Sadrick", LastName: "Sing" })
+}
 
+func main() {
+    initializeUser()
     app := &App{repo: repo.ReposClient{}}
     router := mux.NewRouter()
     router.HandleFunc("/users", user.GetUsers).Methods("GET")
@@ -54,11 +61,4 @@ func main() {
     router.HandleFunc("/repos", app.GetReposHandler)
     log.Fatal(http.ListenAndServe(":12345", router))
     log.Println("listening on 12345")
-}
-
-func init(){
-  users = append(users, user.User{ID : "0", UserName : "Giovanni", FirstName : "David", LastName : "Chan" })
-  users = append(users, user.User{ID: "1", UserName: "Soldier", FirstName: "Jon", LastName: "Huang" })
-  users = append(users, user.User{ID: "2", UserName: "MayLing", FirstName: "Peter", LastName: "Ma" })
-  users = append(users, user.User{ID: "3", UserName: "TightMan", FirstName: "Sadrick", LastName: "Sing" })
 }

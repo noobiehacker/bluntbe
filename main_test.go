@@ -11,9 +11,6 @@ import (
   //"fmt"
 )
 
-func TestOne(t *testing.T) {
-}
-
 type ReposTestClient struct {
 	Repo []repo.Repo
 	Err   error
