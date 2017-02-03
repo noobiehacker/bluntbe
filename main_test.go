@@ -5,19 +5,21 @@ import (
   "errors"
   "net/http"
   "net/http/httptest"
-  "github.com/noobiehacker/bluntbe/internal/repos"
   "github.com/stretchr/testify/assert"
+  "github.com/noobiehacker/bluntbe/internal/repo"
+  "github.com/noobiehacker/bluntbe/internal/user"
+  //"fmt"
 )
 
 func TestOne(t *testing.T) {
 }
 
 type ReposTestClient struct {
-	Repos []repos.Repo
+	Repo []repo.Repo
 	Err   error
 }
 
-func (c ReposTestClient) Get(string) ([]repos.Repo, error) {
+func (c ReposTestClient) Get(string) ([]repo.Repo, error) {
 	return c.Repos, c.Err
 }
 
@@ -40,7 +42,7 @@ func TestGetReposHandler(t *testing.T) {
 		}, {
 			description: "error getting repos",
 			reposClient: &ReposTestClient{
-				Repos: []repos.Repo{},
+				Repos: []repo.Repo{},
 				Err:   errors.New("fake test error"),
 			},
 			url:                "/user?user=fakeuser",
@@ -49,7 +51,7 @@ func TestGetReposHandler(t *testing.T) {
 		}, {
 			description: "no repos found",
 			reposClient: &ReposTestClient{
-				Repos: []repos.Repo{},
+				Repos: []repo.Repo{},
 				Err:   nil,
 			},
 			url:                "/user?user=fakeuser",
@@ -58,7 +60,7 @@ func TestGetReposHandler(t *testing.T) {
 		}, {
 			description: "succesfull query",
 			reposClient: &ReposTestClient{
-				Repos: []repos.Repo{
+				Repos: []repo.Repo{
 					repos.Repo{Name: "test", Description: "a test"},
 				},
 				Err: nil,
@@ -78,6 +80,7 @@ func TestGetReposHandler(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		app.GetReposHandler(w, req)
+//    fmt.Printf("%v\n", tc.expectedStatusCode)
 
 		assert.Equal(tc.expectedStatusCode, w.Code, tc.description)
 		assert.Equal(tc.expectedBody, w.Body.String(), tc.description)

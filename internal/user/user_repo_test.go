@@ -1,18 +1,18 @@
-package repos
+package user
 
 import (
 	"errors"
 	"testing"
-
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	//"fmt"
 )
 
 var c = ReposClient{}
 
 func TestGet(t *testing.T) {
 	assert := assert.New(t)
-
+	//fmt.Println("ABC")
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 

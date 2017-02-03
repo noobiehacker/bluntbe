@@ -1,14 +1,14 @@
-package routes
+package repo
 
 import (
 	"errors"
 	"testing"
-
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+  "github.com/noobiehacker/bluntbe/internal/repo"
 )
 
-var c = ReposClient{}
+var c = repo.ReposClient{}
 
 func TestGet(t *testing.T) {
 	assert := assert.New(t)
@@ -19,23 +19,23 @@ func TestGet(t *testing.T) {
 	tests := []struct {
 		description   string
 		responder     httpmock.Responder
-		expectedRepos []Repo
+		expectedRepos []repo.Repo
 		expectedError error
 	}{
 		{
 			description:   "github api success",
 			responder:     httpmock.NewStringResponder(200, `[{"name": "test", "description": "a test"}]`),
-			expectedRepos: []Repo{Repo{Name: "test", Description: "a test"}},
+			expectedRepos: []repo.Repo{repo.Repo{Name: "test", Description: "a test"}},
 			expectedError: nil,
 		}, {
 			description:   "github api success, no repos",
 			responder:     httpmock.NewStringResponder(200, `[]`),
-			expectedRepos: []Repo{},
+			expectedRepos: []repo.Repo{},
 			expectedError: nil,
 		}, {
 			description:   "github api failure, not found",
 			responder:     httpmock.NewStringResponder(404, `{"message": "not found"}`),
-			expectedRepos: []Repo(nil),
+			expectedRepos: []repo.Repo(nil),
 			expectedError: errors.New("github api: no results found"),
 		},
 		// TODO not all cases are covered
