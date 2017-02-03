@@ -1,4 +1,4 @@
-package bluntbe
+package main
 
 import (
   "testing"

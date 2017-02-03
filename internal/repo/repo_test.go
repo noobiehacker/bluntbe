@@ -16,6 +16,7 @@ func TestGet(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
+  //Set up the structs, basically the mock result of what the server will give back
 	tests := []struct {
 		description   string
 		responder     httpmock.Responder
